@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, SafeAreaView, Platform, StatusBar as RNStatusBar } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView, Platform, StatusBar as RNStatusBar, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import Task from './src/components/Task';
+import TaskList from './src/components/TaskList';
 import { addTask, deleteTask, getAllTasks, updateTask, TaskItem } from './src/utils/handle-api';
 
 export default function App() {
@@ -23,13 +23,22 @@ export default function App() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Text style={styles.header}>Tarefas</Text>
+        <Image
+          source={require('./assets/task-app-banner.png')}
+          style={styles.headerImage}
+        />
+
+        <Text style={styles.tasksCount}>
+          Total de Tarefas: <Text style={styles.tasksCountBold}>{tasks.length}</Text>
+        </Text>
 
         <View style={styles.top}>
           <TextInput
             style={styles.input}
             placeholder="Adicione uma tarefa..."
             value={text}
+            maxLength={30}
+            keyboardType="default"
             onChangeText={(val) => setText(val)}
           />
 
@@ -47,16 +56,11 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
-          {tasks.map((item) => (
-            <Task
-              key={item._id}
-              text={item.text}
-              updateMode={() => updateMode(item._id, item.text)}
-              deleteToDo={() => deleteTask(item._id, setTasks)}
-            />
-          ))}
-        </ScrollView>
+        <TaskList
+          tasks={tasks}
+          onUpdate={updateMode}
+          onDelete={(id) => deleteTask(id, setTasks)}
+        />
       </View>
       <StatusBar style="auto" />
     </SafeAreaView>
@@ -76,12 +80,28 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: 16,
   },
-  header: {
+  headerImage: {
+    width: 500,
+    height: 200,
     marginTop: 16,
-    textAlign: 'center',
-    fontSize: 24,
-    fontWeight: 'bold',
+    marginBottom: 8,
+    alignSelf: 'center',
+    resizeMode: 'contain',
   },
+  tasksCount: {
+    fontSize: 16,
+    color: '#00137c',
+    textAlign: 'center',
+    marginTop: 12,
+    marginBottom: 12,
+    fontWeight: '500',
+  },
+  tasksCountBold: {
+    fontWeight: 'bold',
+    color: '#00137c',
+    fontSize: 18,
+  },
+
   top: {
     marginTop: 16,
     flexDirection: 'row',
@@ -94,11 +114,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#000',
+    borderBottomColor: '#00137c',
     fontSize: 16,
   },
   addButton: {
-    backgroundColor: '#000',
+    backgroundColor: '#00137c',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 4,
@@ -110,11 +130,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  list: {
-    marginTop: 16,
-    flex: 1,
-  },
-  listContent: {
-    paddingBottom: 24,
-  }
 });
